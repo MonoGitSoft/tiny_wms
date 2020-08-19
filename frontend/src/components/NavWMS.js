@@ -1,15 +1,24 @@
 import React from 'react';
-import Navbar from 'react-bootstrap/Navbar';
-import Nav from 'react-bootstrap/Nav'
+import {Navbar, Nav, NavDropdown} from 'react-bootstrap'
 
 function NavWMS() {
     return (
         <Navbar bg="dark" variant="dark">
-            <Navbar.Brand href="#home">Packbase</Navbar.Brand>
+            <Navbar.Brand href="/">Packbase</Navbar.Brand>
             <Nav className="mr-auto">
-                <Nav.Link href="#home">Home</Nav.Link>
-                <Nav.Link href="#features">Features</Nav.Link>
-                <Nav.Link href="#pricing">Pricing</Nav.Link>
+            <Nav.Link href="/addwebshop">Add Webshop</Nav.Link>
+                <NavDropdown title="Inventory" id="basic-nav-dropdown">
+                    <NavDropdown.Item href="/inventory/items">Items</NavDropdown.Item>
+                    <NavDropdown.Item href="/inventory/additem">AddItem</NavDropdown.Item>
+                    <NavDropdown.Item href="/inventory/receiving">Receiving</NavDropdown.Item>
+                    <NavDropdown.Item href="/inventory/putaway">Putaway</NavDropdown.Item>
+                </NavDropdown>
+                <NavDropdown title="Orders" id="basic-nav-dropdown">
+                    <NavDropdown.Item href="/orders/incoming">Incoming Orders</NavDropdown.Item>
+                    <NavDropdown.Item href="/orders/picking">Picking</NavDropdown.Item>
+                    <NavDropdown.Item href="/orders/packing">Packing</NavDropdown.Item>
+                </NavDropdown>
+                <Nav.Link href="/shipping">Shipping</Nav.Link>
             </Nav>
         </Navbar>
     );

@@ -39,7 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'wms.apps.WmsConfig',
     'rest_framework',
-    'frontend',
+    #'frontend',
 ]
 
 MIDDLEWARE = [
