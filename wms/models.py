@@ -15,13 +15,12 @@ class BillingInfo(models.Model):
 
 class WebShop(models.Model):
     name = models.CharField(max_length=254, unique=True)
-    url = models.URLField(unique=True)
+    url = models.URLField(unique=True) # url for using determen how to handle the communiction with website
     email = models.EmailField()
-    tpye = models.CharField(max_length=122, default='UKNOWN') # What kind of webshop motor is used (example wocommerce or shoprenter etc)
 
     @staticmethod
     def fields():
-        return ['name', 'url', 'email', 'type']
+        return ['name', 'url', 'email']
 
 class RackLocation(models.Model):
     geo_location = models.CharField(max_length=122) # Pl Kőbánya

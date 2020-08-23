@@ -25,7 +25,8 @@ SECRET_KEY = 't4$(lqx_d-h!o!lg941u-gbey^)!r3rqrbv9ndrw&-oq09o%j@'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['0.0.0.0']
+ALLOWED_HOSTS = ['0.0.0.0',
+                 '127.0.0.1']
 
 
 # Application definition
@@ -39,6 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'wms.apps.WmsConfig',
     'rest_framework',
+    'corsheaders',
     #'frontend',
 ]
 
@@ -50,6 +52,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
+    'django.middleware.common.CommonMiddleware',
 ]
 
 ROOT_URLCONF = 'django_react_wms.urls'
@@ -112,6 +116,8 @@ REST_FRAMEWORK = {
     ]
 }
 
+CORS_ORIGIN_ALLOW_ALL = True
+CORS_ALLOW_CREDENTIALS = False
 # Internationalization
 # https://docs.djangoproject.com/en/3.1/topics/i18n/
 

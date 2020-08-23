@@ -2,6 +2,9 @@ import React from 'react';
 import logo from './logo.svg';
 import './App.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import 'semantic-ui-css/semantic.min.css'
+
+
 import NavWMS from './components/NavWMS.js'
 import { BrowserRouter as Router, Switch, Route, Link } from "react-router-dom";
 import Summary from './components/Summary'
