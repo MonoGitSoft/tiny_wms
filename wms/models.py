@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib import admin
 from rest_framework.exceptions import ValidationError
 from django.core.exceptions import ValidationError as DjangoValidationError
 from django_mysql.models import EnumField
@@ -70,7 +71,7 @@ class Product(models.Model):
 
     @staticmethod
     def fields():
-        return ['name', 'barcode', 'item_number', 'quantity', 'webshop_id', 'description', 'notification_num']
+        return ['name', 'barcode', 'item_number', 'quantity', 'webshop_id', 'description', 'notification_num', 'weight', 'size']
 
     def validate_unique(self, exclude=None):
         """
