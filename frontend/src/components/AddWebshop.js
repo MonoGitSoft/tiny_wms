@@ -24,6 +24,7 @@ class AddWebshop extends Component {
         let nam = event.target.name;
         let val = event.target.value;
         this.setState({ [nam]: val });
+        console.log(this.state)
     }
 
     handleSubmit = event => {
@@ -91,6 +92,7 @@ class AddWebshop extends Component {
                     <label />Email:<label />
                     <div className="form-group">
                         <input type="email" className="form-control" name="email" value={this.state.email} placeholder="Email" onChange={this.handleChange} />
+                        <small className="form-text text-muted">example@gmail.com</small>
                     </div>
                     <button type="submit" className="btn btn-primary">Submit</button>
                 </form>

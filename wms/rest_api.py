@@ -35,3 +35,14 @@ def webshops_detail(request, pk):
     if request.method == 'GET':
         serializers = WebShopSerializer(webshop)
         return Response(serializers.data)
+
+@api_view(['POST'])
+@permission_classes((permissions.AllowAny,)) #TODO set correct perrmisions
+def items(request):
+    if request.method == 'POST':
+        serializers = ProductSerializer(data=request.data)
+        if serializers.is_valid():
+            serializers.save()
+            return Response(serializers.data, status=status.HTTP_201_CREATED)
+    return Response(serializers.errors, status=status.HTTP_400_BAD_REQUEST)
+
