@@ -10,7 +10,8 @@ function NavWMS() {
                 <NavDropdown title="Inventory" id="basic-nav-dropdown">
                     <NavDropdown.Item href="/inventory/items">Items</NavDropdown.Item>
                     <NavDropdown.Item href="/inventory/additem">AddItem</NavDropdown.Item>
-                    <NavDropdown.Item href="/inventory/receiving">Receiving</NavDropdown.Item>
+                    <NavDropdown.Item href="/inventory/addreceiving_pack">Add Receiving Package</NavDropdown.Item>
+                    <NavDropdown.Item href="/inventory/incomingreceving">Incomming Receiving Package</NavDropdown.Item>
                     <NavDropdown.Item href="/inventory/putaway">Putaway</NavDropdown.Item>
                 </NavDropdown>
                 <NavDropdown title="Orders" id="basic-nav-dropdown">

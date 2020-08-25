@@ -3,6 +3,7 @@ from django.contrib import admin
 from rest_framework.exceptions import ValidationError
 from django.core.exceptions import ValidationError as DjangoValidationError
 from django_mysql.models import EnumField
+from datetime import datetime
 from enum import Enum
 
 class BillingInfo(models.Model):
@@ -25,7 +26,7 @@ class WebShop(models.Model):
 
     @staticmethod
     def fields():
-        return ['id', 'name', 'url', 'email']#
+        return ['id', 'name', 'url', 'email'] # id field comes from models.Model
 
 class RackLocation(models.Model):
     geo_location = models.CharField(max_length=122) # Pl Kőbánya
@@ -71,7 +72,7 @@ class Product(models.Model):
 
     @staticmethod
     def fields():
-        return ['name', 'barcode', 'item_number', 'quantity', 'webshop_id', 'description', 'notification_num', 'weight', 'size']
+        return ['id', 'name', 'barcode', 'item_number', 'quantity', 'webshop_id', 'description', 'notification_num', 'weight', 'size']
 
     def validate_unique(self, exclude=None):
         """
@@ -97,11 +98,40 @@ class Product(models.Model):
 class ProductLoction(models.Model):
     product_id = models.ForeignKey(Product, on_delete=models.CASCADE)
     rack_id = models.ForeignKey(RackLocation, on_delete=models.CASCADE)
-    product_quantity = models.IntegerField()
+    product_quantity = models.PositiveIntegerField()
 
     @staticmethod
     def fields():
         return ['product_id', 'rack_id', 'product_quantity']
+
+
+class ReceivingPackage(models.Model):
+
+    TAKEN_OVER = 'TK_OV' #átvéve
+    SHIPPING = 'SHP' # kiszállítása alatt
+    STORED = 'STD' # elraktározva
+
+    RECEIVING_PKG_STATUS = [
+        (TAKEN_OVER, 'Taken over'),
+        (SHIPPING, 'On shipping'),
+        (STORED, 'Stored'),
+    ]
+
+    webshop_id = models.ForeignKey(WebShop, null=True, on_delete=models.SET_NULL) # webshop from the package will receive
+    track_id = models.CharField(max_length=56, unique=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    status = EnumField(choices=RECEIVING_PKG_STATUS, default=SHIPPING)
+    comment = models.CharField(max_length=254, default='')
+
+class ReceivingItems(models.Model):
+    product_id = models.ForeignKey(Product, on_delete=models.CASCADE)
+    quantity = models.PositiveIntegerField()
+    package_id = models.ForeignKey(ReceivingPackage, on_delete=models.CASCADE)
+
+    @staticmethod
+    def fields():
+        return ['product_id', 'quantity']
 
 
 # Create your models here.

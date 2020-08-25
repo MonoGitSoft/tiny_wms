@@ -38,7 +38,7 @@ def webshops_detail(request, pk):
 
 @api_view(['POST'])
 @permission_classes((permissions.AllowAny,)) #TODO set correct perrmisions
-def items(request):
+def create_item(request):
     if request.method == 'POST':
         serializers = ProductSerializer(data=request.data)
         if serializers.is_valid():
@@ -46,3 +46,45 @@ def items(request):
             return Response(serializers.data, status=status.HTTP_201_CREATED)
     return Response(serializers.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
+@api_view(['GET'])
+@permission_classes((permissions.AllowAny,)) #TODO set correct perrmisions
+def get_webshop_items(request, wb_pk):
+    if request.method == 'GET':
+        queryset = Product.objects.filter(webshop_id=wb_pk)
+        serializer = ProductSerializer(queryset, many=True)
+        return Response(serializer.data)
+    return Response(serializers.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['POST'])
+@permission_classes((permissions.AllowAny,)) #TODO set correct perrmisions
+def create_receiving_package(request):
+    """
+        Egy webshoptol bevételezendő csomagot hoz létre.
+    """
+    errors = list();
+    serializers_pck = ReceivingPackageSerializer(data=request.data)
+    saved_receoving_package = ''
+    if request.method == 'POST':
+        print()
+        if serializers_pck.is_valid():
+            saved_receoving_package = serializers_pck.save()
+            print("GIGGAIGAIGIA DCOAKSDK")
+            #return Response(serializers_pck.data, status=status.HTTP_201_CREATED)
+        else:
+            print("Kurvanbagy asd")
+            print(serializers_pck.errors)
+        print(request.data["receiving_products"])
+
+        for product in request.data["receiving_products"]:
+            serializers_products = ReceivingItemsSerializer(data=product)
+            if serializers_products.is_valid():
+                print('Valide')
+                saved_receoving_package.receivingitems_set.create(product_id=Product.objects.get(id=product["product_id"]), quantity=product["quantity"])
+            else:
+                print('Error :')
+                print(serializers_products.errors)
+                errors.extend(serializers_products.errors)
+
+    errors.extend(serializers_pck.errors)
+    return Response(serializers_pck.data, status=status.HTTP_201_CREATED)

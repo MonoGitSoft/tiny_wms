@@ -78,6 +78,7 @@ class AddWebshop extends Component {
         const infomsg = this.InfoMessage();
         return (
             <div className="container">
+                <h1>Add webshop</h1>
                 <form onSubmit={this.handleSubmit}>
                     <label>WebShop Name:</label>
                     <div className="form-group">

@@ -22,8 +22,17 @@ class AddItem extends Component {
 
     handleSubmit = event => {
         event.preventDefault();
+        
+        const add_item_data = {
+            name: this.state.name,
+            barcode: this.state.barcode,
+            item_number: this.state.item_number,
+            webshop_id: this.state.webshop_id,
+            description: this.state.description,
+            notification_num: this.state.notification_num,
+        }
 
-        axios.post(`http://127.0.0.1:8000/items/`, this.state)
+        axios.post(`http://127.0.0.1:8000/items/`, add_item_data)
             .then(res => {
                 this.setState( res.data );
                 this.setState({ fromError: false });
@@ -99,6 +108,7 @@ class AddItem extends Component {
         const infomsg = this.InfoMessage();
         return (
             <div className="container">
+                <h1>Add Item</h1>
                 <form onSubmit={this.handleSubmit}>
                     <div className="form-group">
                         <label>Select WebShop Name:</label>

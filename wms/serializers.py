@@ -1,18 +1,25 @@
 from rest_framework import serializers
 from .models import *
 
+class ReceivingPackageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ReceivingPackage
+        fields = "__all__"
+
+class ReceivingItemsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ReceivingItems
+        fields = ReceivingItems.fields()
 
 class WebShopSerializer(serializers.ModelSerializer):
     class Meta:
         model = WebShop
         fields = WebShop.fields()
 
-
 class ProductSerializer(serializers.ModelSerializer):
     class Meta:
         model = Product
         fields = Product.fields()
-
 
 class RackSerializer(serializers.ModelSerializer):
     class Meta:
