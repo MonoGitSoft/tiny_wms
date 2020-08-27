@@ -72,6 +72,15 @@ class AddItem extends Component {
 
     resetForm = () => {
         this.setState(this.baseState)
+        
+        axios.get(`http://127.0.0.1:8000/webshops/`)
+            .then(res => {
+                const res_webshops = res.data;
+                this.setState({ webshops: res_webshops });
+                const options = [];
+                res_webshops.forEach(element => options.push({ value: element.name, label: element.name }));
+                this.setState({ webshops_options: options });
+            })
     }
 
     InfoMessage = () => {

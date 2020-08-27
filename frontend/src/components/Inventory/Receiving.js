@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import axios from 'axios'
 import Select from 'react-select'
+import { Message, Form, Button } from "semantic-ui-react";
 
 class Receiving extends Component {
     constructor() {
@@ -30,6 +31,49 @@ class Receiving extends Component {
                 res_webshops.forEach(element => options.push({ value: element.name, label: element.name }));
                 this.setState({ webshops_options: options });
             })
+    }
+
+    resetForm = () => {
+        this.setState(this.baseState)
+        
+        axios.get(`http://127.0.0.1:8000/webshops/`)
+            .then(res => {
+                const res_webshops = res.data;
+                this.setState({ webshops: res_webshops });
+                const options = [];
+                res_webshops.forEach(element => options.push({ value: element.name, label: element.name }));
+                this.setState({ webshops_options: options });
+            })
+    }
+
+    InfoMessage = () => {
+        if (this.state.fromError != null) {
+            var msg = [];
+            for (const [key, value] of Object.entries(this.state.fromError)) {
+                msg.push(`${key}: ${value}`);
+            }
+
+            console.log(msg);
+            return (
+                <>
+                    {!this.state.fromError ? (
+                        <Message
+                            positive
+                            header="Add item was successful"
+                        />
+                    ) : (
+                            <Message
+                                negative
+                                header="Add item was unsuccessful"
+                                list={msg}
+                            />
+                        )}
+                    <button onClick={this.resetForm} className="btn btn-primary">Add Receiving Package</button>
+                </>);
+        }
+        else {
+            return (<></>);
+        }
     }
 
     onChangeSelect = e => {
@@ -100,6 +144,8 @@ class Receiving extends Component {
             products_options={this.state.products_options}
             onChangeSelectProduct={(e) => this.onChangeSelectProduct(e, index)}
             onChangeSelectProductQuantity={(e) => this.onChangeSelectProductQuantity(e, index)} />);
+
+            const infomsg = this.InfoMessage();
         return (
             <div className="container">
                 <h1>Add Receiving Package</h1>
@@ -122,6 +168,7 @@ class Receiving extends Component {
                             </div>
                         </div>
                     </div>
+                {infomsg}
             </div>
         )
     }
