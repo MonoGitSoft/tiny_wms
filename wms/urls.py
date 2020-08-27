@@ -8,5 +8,8 @@ urlpatterns = [
     path('webshops/<int:pk>/', rest_api.webshops_detail),
     path('items/', rest_api.create_item),
     path('items/<int:wb_pk>', rest_api.get_webshop_items),
-    path('inventory/receiving_package/', rest_api.create_receiving_package)
+    path('items_details', rest_api.get_items_details),
+    path('inventory/receiving_package/', rest_api.create_receiving_package),
+    path('inventory/receiving_package/<track_id>', rest_api.get_receiving_package),
+    path('inventory/receiving_items/<int:package_id>', rest_api.get_receiving_items),
 ]

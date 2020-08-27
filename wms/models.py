@@ -118,7 +118,7 @@ class ReceivingPackage(models.Model):
     ]
 
     webshop_id = models.ForeignKey(WebShop, null=True, on_delete=models.SET_NULL) # webshop from the package will receive
-    track_id = models.CharField(max_length=56, unique=True)
+    track_id = models.CharField(max_length=122, unique=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     status = EnumField(choices=RECEIVING_PKG_STATUS, default=SHIPPING)

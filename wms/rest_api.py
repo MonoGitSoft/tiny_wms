@@ -40,11 +40,11 @@ def webshops_detail(request, pk):
 @permission_classes((permissions.AllowAny,)) #TODO set correct perrmisions
 def create_item(request):
     if request.method == 'POST':
-        serializers = ProductSerializer(data=request.data)
-        if serializers.is_valid():
-            serializers.save()
-            return Response(serializers.data, status=status.HTTP_201_CREATED)
-    return Response(serializers.errors, status=status.HTTP_400_BAD_REQUEST)
+        product = ProductSerializer(data=request.data)
+        if product.is_valid():
+            product.save()
+            return Response(product.data, status=status.HTTP_201_CREATED)
+    return Response(product.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(['GET'])
@@ -55,6 +55,14 @@ def get_webshop_items(request, wb_pk):
         serializer = ProductSerializer(queryset, many=True)
         return Response(serializer.data)
     return Response(serializers.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['GET'])
+@permission_classes((permissions.AllowAny,)) #TODO set correct perrmisions
+def get_items_details(request):
+    """
+        JSON Array product_id -> JSON Array product details
+    """
+
 
 @api_view(['POST'])
 @permission_classes((permissions.AllowAny,)) #TODO set correct perrmisions
@@ -83,5 +91,34 @@ def create_receiving_package(request):
         else:
             return Response(serializers_pck.errors , status=status.HTTP_400_BAD_REQUEST)
 
-
     return Response(serializers_pck.data, status=status.HTTP_201_CREATED)
+
+@api_view(['GET'])
+@permission_classes((permissions.AllowAny,)) #TODO set correct perrmisions
+def get_receiving_package(request, track_id):
+    """
+        A bevételezendő csimagot adja vissza track_id alapjan
+    """
+    try:
+        package = ReceivingPackage.objects.get(track_id=track_id)
+    except Exception as e:
+        return JsonResponse({'status_code': 404,'error': 'The resource was not found'}, status=status.HTTP_404_NOT_FOUND)
+
+    if request.method == 'GET':
+        package_response = ReceivingPackageSerializer(package)
+        return Response(package_response.data)
+
+    return Response(status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['GET'])
+@permission_classes((permissions.AllowAny,)) #TODO set correct perrmisions
+def get_receiving_items(request, package_id):
+    try:
+        queryset = ReceivingItems.objects.filter(package_id=package_id)
+    except Exception as e:
+        return HttpResponse(status=status.HTTP_404_NOT_FOUND)
+    serializer = ReceivingItemsSerializer(queryset, many=True)
+    if request.method == 'GET':
+        return Response(serializer.data)
+
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
