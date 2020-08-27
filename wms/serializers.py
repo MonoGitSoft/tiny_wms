@@ -7,11 +7,17 @@ class ReceivingItemsSerializer(serializers.ModelSerializer):
         fields = ReceivingItems.fields()
 
 class ReceivingPackageSerializer(serializers.ModelSerializer):
-    items_set = ReceivingItemsSerializer(many=True)
+    items = ReceivingItemsSerializer(many=True)
     class Meta:
         model = ReceivingPackage
-        depth = 1
-        fields = ['webshop_id', 'track_id', 'comment', 'items_set']
+        fields = ['webshop_id', 'track_id', 'comment', 'items']
+
+    def create(self, validated_data):
+        receiving_items_data = validated_data.pop('items')
+        receiving_package = ReceivingPackage.objects.create(**validated_data)
+        for data in receiving_items_data:
+            ReceivingItems.objects.create(package_id=receiving_package, **data)
+        return receiving_package
 
 class WebShopSerializer(serializers.ModelSerializer):
     class Meta:

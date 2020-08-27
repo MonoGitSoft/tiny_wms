@@ -127,7 +127,7 @@ class ReceivingPackage(models.Model):
 class ReceivingItems(models.Model):
     product_id = models.ForeignKey(Product, on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField()
-    package_id = models.ForeignKey(ReceivingPackage, on_delete=models.CASCADE)
+    package_id = models.ForeignKey(ReceivingPackage, related_name='items', on_delete=models.CASCADE)
 
     @staticmethod
     def fields():

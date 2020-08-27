@@ -71,27 +71,15 @@ def create_receiving_package(request):
         Egy webshoptol bevételezendő csomagot hoz létre.
     """
     serializers_pck = ReceivingPackageSerializer(data=request.data)
-    errors = list()
     if request.method == 'POST':
-        print()
         if serializers_pck.is_valid():
-            saved_receoving_package = serializers_pck.save()
-            all_product_valid = True
-            for product in request.data["receiving_products"]:
-                serializers_products = ReceivingItemsSerializer(data=product)
-                if serializers_products.is_valid():
-                    saved_receoving_package.receivingitems_set.create(
-                        product_id=Product.objects.get(id=product["product_id"]), quantity=product["quantity"])
-                else:
-                    errors.extend(serializers_products.errors)
-                    all_product_valid=False
-            if not all_product_valid:
-                return Response(errors, status=status.HTTP_400_BAD_REQUEST)
-
+            serializers_pck.save()
+            return Response(serializers_pck.data)
         else:
-            return Response(serializers_pck.errors , status=status.HTTP_400_BAD_REQUEST)
+            return Response(serializers_pck.errors, status=status.HTTP_400_BAD_REQUEST)
+    else:
+        return Response(status=status.HTTP_400_BAD_REQUEST)
 
-    return Response(serializers_pck.data, status=status.HTTP_201_CREATED)
 
 @api_view(['GET'])
 @permission_classes((permissions.AllowAny,)) #TODO set correct perrmisions

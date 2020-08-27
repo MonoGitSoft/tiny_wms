@@ -123,7 +123,7 @@ class Receiving extends Component {
             webshop_id: this.state.webshop_id,
             track_id: this.state.track_id,
             comment: this.state.comment,
-            receiving_products: this.receving_products,
+            items: this.receving_products,
         }
 
         axios.post(`http://127.0.0.1:8000/inventory/receiving_package/`, data)
