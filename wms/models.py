@@ -125,13 +125,13 @@ class ReceivingPackage(models.Model):
     comment = models.CharField(max_length=254, default='')
 
 class ReceivingItems(models.Model):
-    product_id = models.ForeignKey(Product, on_delete=models.CASCADE)
+    product_id = models.OneToOneField(Product, on_delete=models.CASCADE, primary_key=True)
     quantity = models.PositiveIntegerField()
     package_id = models.ForeignKey(ReceivingPackage, related_name='items', on_delete=models.CASCADE)
 
     @staticmethod
     def fields():
-        return ['product_id', 'quantity']
+        return ['product_id', 'quantity', 'item_info']
 
 
 # Create your models here.

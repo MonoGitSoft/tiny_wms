@@ -35,7 +35,7 @@ class Receiving extends Component {
 
     resetForm = () => {
         this.setState(this.baseState)
-        
+
         axios.get(`http://127.0.0.1:8000/webshops/`)
             .then(res => {
                 const res_webshops = res.data;
@@ -128,7 +128,7 @@ class Receiving extends Component {
 
         axios.post(`http://127.0.0.1:8000/inventory/receiving_package/`, data)
             .then(res => {
-                this.setState( res.data );
+                this.setState(res.data);
                 this.setState({ fromError: false });
             },
                 err => {
@@ -145,29 +145,29 @@ class Receiving extends Component {
             onChangeSelectProduct={(e) => this.onChangeSelectProduct(e, index)}
             onChangeSelectProductQuantity={(e) => this.onChangeSelectProductQuantity(e, index)} />);
 
-            const infomsg = this.InfoMessage();
+        const infomsg = this.InfoMessage();
         return (
             <div className="container">
                 <h1>Add Receiving Package</h1>
-                    <div className="form-group">
-                        <label>Select WebShop:</label>
-                        <Select options={this.state.webshops_options} onChange={this.onChangeSelect} />
-                    </div>
-                    <input type="text" className="form-control" name="track_id" value={this.state.track_id} aria-describedby="trakIDHelper" placeholder="Track ID:" onChange={this.handleChange} />
-                    <small id="trakIDHelper" className="form-text text-muted">Track ID, csomagszám (Ezzel lehet nyomon követni a csomagokat a gls vagy bármelyik futárszolgálatnál) </small>
-                    <input type="text" className="form-control" name="comment" value={this.state.comment} aria-describedby="commentHelper" placeholder="Comment:" onChange={this.handleChange} />
-                    <small id="commentHelper" className="form-text text-muted">Barmilyen comment ami az adott csomag bevételezésénél szóba jöhet.</small>
-                    {listItems}
-                    <div className="container">
-                        <div className="row">
-                            <div className="col-sm">
-                                <button type="button" className="btn btn-primary" onClick={this.handleSubmit} >Submit</button>
-                            </div>
-                            <div className="col-sm">
-                                <AddReceivingProductButton products_options={this.state.products_options} onClick={this.addReceivingProductInput} />
-                            </div>
+                <div className="form-group">
+                    <label>Select WebShop:</label>
+                    <Select options={this.state.webshops_options} onChange={this.onChangeSelect} />
+                </div>
+                <input type="text" className="form-control" name="track_id" value={this.state.track_id} aria-describedby="trakIDHelper" placeholder="Track ID:" onChange={this.handleChange} />
+                <small id="trakIDHelper" className="form-text text-muted">Track ID, csomagszám (Ezzel lehet nyomon követni a csomagokat a gls vagy bármelyik futárszolgálatnál) </small>
+                <input type="text" className="form-control" name="comment" value={this.state.comment} aria-describedby="commentHelper" placeholder="Comment:" onChange={this.handleChange} />
+                <small id="commentHelper" className="form-text text-muted">Barmilyen comment ami az adott csomag bevételezésénél szóba jöhet.</small>
+                {listItems}
+                <div className="container">
+                    <div className="row">
+                        <div className="col-sm">
+                            <button type="button" className="btn btn-primary" onClick={this.handleSubmit} >Submit</button>
+                        </div>
+                        <div className="col-sm">
+                            <AddReceivingProductButton products_options={this.state.products_options} onClick={this.addReceivingProductInput} />
                         </div>
                     </div>
+                </div>
                 {infomsg}
             </div>
         )
@@ -204,31 +204,31 @@ class AddReceivingProductButton extends Component {
 
 
 class AddProductInput extends Component {
-    constructor(props) {
-        super(props)
-    }
+                constructor(props) {
+                super(props)
+            }
 
     render() {
         if (this.props.products_options != null) {
             return (
-                <>
-                    <div className="container">
-                        <div className="row">
-                            <div className="col-sm">
-                                <div className="form-group">
-                                    <label>Select Product:</label>
-                                    <Select options={this.props.products_options} onChange={this.props.onChangeSelectProduct} />
-                                </div>
+            <>
+                <div className="container">
+                    <div className="row">
+                        <div className="col-sm">
+                            <div className="form-group">
+                                <label>Select Product:</label>
+                                <Select options={this.props.products_options} onChange={this.props.onChangeSelectProduct} />
                             </div>
-                            <div className="col-sm">
-                                <div className="form-group">
-                                    <label>Quantity:</label>
-                                    <input type="number" min="0" className="form-control" name="quantity" placeholder="Quantity" onChange={this.props.onChangeSelectProductQuantity} />
-                                </div>
+                        </div>
+                        <div className="col-sm">
+                            <div className="form-group">
+                                <label>Quantity:</label>
+                                <input type="number" min="0" className="form-control" name="quantity" placeholder="Quantity" onChange={this.props.onChangeSelectProductQuantity} />
                             </div>
                         </div>
                     </div>
-                </>);
+                </div>
+            </>);
         }
         else {
             return (<></>);

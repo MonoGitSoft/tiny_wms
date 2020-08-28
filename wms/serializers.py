@@ -1,13 +1,23 @@
 from rest_framework import serializers
 from .models import *
 
+
+class ProductSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Product
+        fields = Product.fields()
+
+
 class ReceivingItemsSerializer(serializers.ModelSerializer):
+    item_info = ProductSerializer(read_only=True)
     class Meta:
         model = ReceivingItems
         fields = ReceivingItems.fields()
 
+
 class ReceivingPackageSerializer(serializers.ModelSerializer):
     items = ReceivingItemsSerializer(many=True)
+
     class Meta:
         model = ReceivingPackage
         fields = ['webshop_id', 'track_id', 'comment', 'items']
@@ -19,15 +29,12 @@ class ReceivingPackageSerializer(serializers.ModelSerializer):
             ReceivingItems.objects.create(package_id=receiving_package, **data)
         return receiving_package
 
+
 class WebShopSerializer(serializers.ModelSerializer):
     class Meta:
         model = WebShop
         fields = WebShop.fields()
 
-class ProductSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Product
-        fields = Product.fields()
 
 class RackSerializer(serializers.ModelSerializer):
     class Meta:

@@ -3,6 +3,7 @@ import axios from 'axios'
 import Select from 'react-select'
 import { Message, Form, Button } from "semantic-ui-react";
 
+
 class IncomingReceving extends Component {
     constructor() {
         super();
@@ -10,13 +11,14 @@ class IncomingReceving extends Component {
             webshops: '',
             webshops_options: '',
             track_id: '',
-            receiving_package: '',
-            receiving_items: '',
+            receiving_package: null,
+            receiving_items: null,
             fromError: null,
         }; //'name', 'barcode', 'item_number', 'quantity', 'webshop_id', 'description', 'notification_num'
         this.baseState = this.state;
 
         this.handleSreach = this.handleSreach.bind(this);
+
     }
 
     handleChange = event => {
@@ -26,7 +28,7 @@ class IncomingReceving extends Component {
         console.log(this.state)
     }
 
-     
+
     componentDidMount() {
         axios.get(`http://127.0.0.1:8000/webshops/`)
             .then(res => {
@@ -51,22 +53,56 @@ class IncomingReceving extends Component {
             })
     }
 
-    async handleSreach () {
-        try {
-            const pkg = await axios.get(`http://127.0.0.1:8000/inventory/receiving_package/${this.state.track_id}`);
-            this.setState({fromError : null})
-            const items = await axios.get(`http://127.0.0.1:8000/inventory/receiving_items/${pkg.data.id}`)
-            console.log(items.data)
-        } catch(err) {
-            this.setState({fromError : err.response.data})
-            console.log("----------------------------------")
-            console.log(err)
-        }
 
-        
+    async handleSreach() {
 
-        //const items = await axios.get(`http://127.0.0.1:8000/inventory/receiving_items/${pkg.data.results.id}`)
-        
+        axios.get(`http://127.0.0.1:8000/inventory/receiving_package/${this.state.track_id}`)
+            .then(res => {
+                console.log(res.data)
+                const receiving_pkg = res.data;
+                this.setState({ receiving_package: receiving_pkg });
+                this.setState({ fromError: null });
+                return axios.post(`http://127.0.0.1:8000/items_details/`, receiving_pkg);
+            },
+                err => {
+                    this.setState({ receiving_items: null });
+                    this.setState({ fromError: err.response.data });
+                    return;
+                })
+            .then((res) => {
+                if (res) {
+                    const res_data = res.data;
+                    console.log(res_data)
+                    res_data.forEach(element => {
+                        element.quantity = this.state.receiving_package.items.find(item => item.product_id == element.id).quantity;
+                        element.received_quantity = 0
+                    }) //this.state.receiving_package.items.find( item => item.id == element.id)
+
+                    console.log("asdasdasdasdasd")
+                    console.log(res_data)
+
+
+                    console.log(res.data)
+                    this.setState({ receiving_items: res_data });
+                }
+            },
+                err => {
+                    this.setState({ fromError: err.response.data });
+                    return;
+                })
+    }
+
+    handleList = () => {
+        console.log(this.state.receiving_package)
+        axios.post(`http://127.0.0.1:8000/items_details/`, this.state.receiving_package)
+            .then(res => {
+                const rec_items = res.data;
+                this.setState({ receiving_items: rec_items })
+                this.setState({ fromError: null })
+            },
+                err => {
+                    this.setState({ fromError: err.response.data })
+                })
     }
 
     InfoMessage = () => {
@@ -91,7 +127,7 @@ class IncomingReceving extends Component {
                                 list={msg}
                             />
                         )}
-                    <button onClick={this.resetForm} className="btn btn-primary">Add Receiving Package</button>
+                    <button onClick={this.resetForm} className="btn btn-primary">Try new search</button>
                 </>);
         }
         else {
@@ -99,6 +135,24 @@ class IncomingReceving extends Component {
         }
     }
 
+
+    renderTable() {
+        if (!this.state.receiving_items) {
+            return (<></>)
+        }
+
+        return this.state.receiving_items.map((item, index) => {
+            const { id, name, barcode, quantity, received_quantity } = item;
+            return (
+                <tr key={id}>
+                    <td>{name}</td>
+                    <td>{barcode}</td>
+                    <td>{quantity}</td>
+                    <td>{received_quantity}</td>
+                </tr>
+            )
+        })
+    }
 
     render() {
         const infoMsg = this.InfoMessage();
@@ -112,11 +166,53 @@ class IncomingReceving extends Component {
                     <label>Select WebShop (optional):</label>
                     <Select options={this.state.webshops_options} onChange={this.onChangeSelect} />
                 </div>
-                <button type="button" className="btn btn-primary" onClick={this.handleSreach} >Search</button>
+                <button type="button" className="btn btn-primary" onClick={this.handleSreach}>Search</button>
                 {infoMsg}
+                <div className="container pt-3">
+                    <table className="table table-dark table-striped">
+                        <thead>
+                            <tr>
+                                <th scope="col">Name</th>
+                                <th scope="col">Barcode</th>
+                                <th scope="col">Sent quantity</th>
+                                <th scope="col">Received quantity</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {this.renderTable()}
+                        </tbody>
+                    </table>
+                </div>
             </div>
         )
     }
+
 }
+
+/*
+table table-dark table-striped
+class RecevingItemsTable extends Component {
+    constructor(props) {
+        super(props);
+    }
+ 
+    render() {
+        return
+        (<>
+            <table className="table table-dark table-striped">
+                <thead>
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">First</th>
+                        <th scope="col">Last</th>
+                        <th scope="col">Handle</th>
+                    </tr>
+                </thead>
+                </table>
+        </>);
+    }
+}
+ 
+*/
 
 export default IncomingReceving;

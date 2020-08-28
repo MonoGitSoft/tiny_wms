@@ -56,12 +56,25 @@ def get_webshop_items(request, wb_pk):
         return Response(serializer.data)
     return Response(serializers.errors, status=status.HTTP_400_BAD_REQUEST)
 
-@api_view(['GET'])
+
+@api_view(['POST'])
 @permission_classes((permissions.AllowAny,)) #TODO set correct perrmisions
 def get_items_details(request):
     """
         JSON Array product_id -> JSON Array product details
+
     """
+    queries = list()
+    for item in request.data["items"]:
+        try:
+            query = Product.objects.get(id=item["product_id"])
+        except Exception as e:
+            return HttpResponse(status=status.HTTP_404_NOT_FOUND)
+
+        queries.append( ProductSerializer(query).data)
+
+    return JsonResponse(queries, safe=False, status=status.HTTP_200_OK)
+
 
 
 @api_view(['POST'])
