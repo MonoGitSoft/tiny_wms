@@ -9,7 +9,6 @@ class ProductSerializer(serializers.ModelSerializer):
 
 
 class ReceivingItemsSerializer(serializers.ModelSerializer):
-    item_info = ProductSerializer(read_only=True)
     class Meta:
         model = ReceivingItems
         fields = ReceivingItems.fields()

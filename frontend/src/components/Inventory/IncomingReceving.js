@@ -5,8 +5,8 @@ import { Message, Form, Button } from "semantic-ui-react";
 
 
 class IncomingReceving extends Component {
-    constructor() {
-        super();
+    constructor(props) {
+        super(props);
         this.state = {
             webshops: '',
             webshops_options: '',
@@ -14,9 +14,9 @@ class IncomingReceving extends Component {
             receiving_package: null,
             receiving_items: null,
             fromError: null,
+            scannerInput: null,
         }; //'name', 'barcode', 'item_number', 'quantity', 'webshop_id', 'description', 'notification_num'
         this.baseState = this.state;
-
         this.handleSreach = this.handleSreach.bind(this);
 
     }
@@ -25,7 +25,6 @@ class IncomingReceving extends Component {
         let nam = event.target.name;
         let val = event.target.value;
         this.setState({ [nam]: val });
-        console.log(this.state)
     }
 
 
@@ -148,14 +147,56 @@ class IncomingReceving extends Component {
                     <td>{name}</td>
                     <td>{barcode}</td>
                     <td>{quantity}</td>
-                    <td>{received_quantity}</td>
+                    <td>    <input type="number" min="0" className="form-control" name="quantity" value={this.state.receiving_items[index].received_quantity} onChange={(e) => {
+                        console.log(e.target.value)
+                        if (e.target.value === '') {
+                            console.log("szompjal fasz")
+                            this.state.receiving_items[index].received_quantity = 0;
+                        }
+                        else {
+                            this.state.receiving_items[index].received_quantity = parseInt(e.target.value); this.forceUpdate();
+                        }
+                    }} /> </td>
                 </tr>
             )
         })
     }
 
+
+    handleScannerInput = (event) => {
+        event.preventDefault();
+        console.log(event.target.name)
+        console.log(event.target.value)
+        this.setState({ scannerInput: event.value })
+    }
+
+    handleScannerOnKey = (event) => {
+        if (event.keyCode === 9) {
+            event.preventDefault();
+            console.log(this.state.receiving_items.received_quantity)
+
+            console.log(this.state.receiving_items.find(item => item.barcode == this.state.scannerInput))
+
+            const find_item = this.state.receiving_items.find(item => item.barcode == this.state.scannerInput);
+
+            if (find_item) {
+                find_item.received_quantity = find_item.received_quantity + 1;
+                console.log("heureke")
+            }
+            else {
+                console.log("Unknown item")
+            }
+
+
+            this.setState({ scannerInput: null })
+            document.getElementById('scannerInput').value = ''
+            this.forceUpdate();
+        }
+    }
+
     render() {
         const infoMsg = this.InfoMessage();
+
         return (
             <div className="container">
                 <h1>Incoming Receving Package</h1>
@@ -167,8 +208,8 @@ class IncomingReceving extends Component {
                     <Select options={this.state.webshops_options} onChange={this.onChangeSelect} />
                 </div>
                 <button type="button" className="btn btn-primary" onClick={this.handleSreach}>Search</button>
-                {infoMsg}
                 <div className="container pt-3">
+                    <h1>Incoming Receving Package</h1>
                     <table className="table table-dark table-striped">
                         <thead>
                             <tr>
@@ -182,7 +223,21 @@ class IncomingReceving extends Component {
                             {this.renderTable()}
                         </tbody>
                     </table>
+                    <form>
+                        <h2>Scanner input:</h2>
+                        <input onKeyDown={this.handleScannerOnKey} type="text" id="scannerInput" className="form-control" name="scannerInput" value={this.state.scannerInput} onChange={this.handleChange} />
+                    </form>
                 </div>
+                <div className="container pt-3">
+                    <button type="button" className="btn btn-primary" onClick={() => {
+                        this.props.alert.show(
+                            <div className="container">
+                                <p> Are you sure to take-in the items???  </p>
+                                <button type="button" className="btn btn-primary" onClick={this.handleSreach}>Yes, start taking-in the items</button>
+                            </div>)
+                    }} >Take In</button>
+                </div>
+                {infoMsg}
             </div>
         )
     }
