@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import axios from 'axios'
-import Select from 'react-select'
+import Select, { components } from 'react-select'
 import { Message, Form, Button } from "semantic-ui-react";
 
 
@@ -12,7 +12,9 @@ class IncomingReceving extends Component {
             webshops_options: '',
             track_id: '',
             receiving_package: null,
+            receiving_packages: null,
             receiving_items: null,
+            select_pack:null,
             fromError: null,
             scannerInput: null,
         }; //'name', 'barcode', 'item_number', 'quantity', 'webshop_id', 'description', 'notification_num'
@@ -29,27 +31,17 @@ class IncomingReceving extends Component {
 
 
     componentDidMount() {
-        axios.get(`http://127.0.0.1:8000/webshops/`)
+        axios.get(`http://127.0.0.1:8000/inventory/receiving_package/all/`)
             .then(res => {
-                const res_webshops = res.data;
-                this.setState({ webshops: res_webshops });
+                this.setState({ receiving_packages: res.data});
                 const options = [];
-                res_webshops.forEach(element => options.push({ value: element.name, label: element.name }));
+                res.data.forEach(element => options.push({ value: element.id, label: element.webshop_name + ' ' + element.created_at }));
                 this.setState({ webshops_options: options });
             })
     }
 
     resetForm = () => {
         this.setState(this.baseState)
-
-        axios.get(`http://127.0.0.1:8000/webshops/`)
-            .then(res => {
-                const res_webshops = res.data;
-                this.setState({ webshops: res_webshops });
-                const options = [];
-                res_webshops.forEach(element => options.push({ value: element.name, label: element.name }));
-                this.setState({ webshops_options: options });
-            })
     }
 
 
@@ -140,8 +132,11 @@ class IncomingReceving extends Component {
             return (<></>)
         }
 
+        
+        
         return this.state.receiving_items.map((item, index) => {
-            const { id, name, barcode, quantity, received_quantity } = item;
+            const { quantity, received_quantity } = item;
+            const {id, name, barcode} = item.product_info;
             return (
                 <tr key={id}>
                     <td>{name}</td>
@@ -162,6 +157,12 @@ class IncomingReceving extends Component {
         })
     }
 
+    handleSelectWebshopPack = (event) => {
+        console.log(this.state.webshops_options)
+        this.setState({receiving_items: this.state.receiving_packages.find(e => e.id === event.value).items })
+        console.log(this.state.receiving_packages)
+        console.log(this.state.receiving_packages.find(e => e.id = event.value))
+    }
 
     handleScannerInput = (event) => {
         event.preventDefault();
@@ -171,13 +172,14 @@ class IncomingReceving extends Component {
     }
 
     handleScannerOnKey = (event) => {
+        console.log(event)
         if (event.keyCode === 9) {
             event.preventDefault();
             console.log(this.state.receiving_items.received_quantity)
 
-            console.log(this.state.receiving_items.find(item => item.barcode == this.state.scannerInput))
+            console.log(this.state.receiving_items.find(item => item.product_info.barcode === this.state.scannerInput))
 
-            const find_item = this.state.receiving_items.find(item => item.barcode == this.state.scannerInput);
+            const find_item = this.state.receiving_items.find(item => item.product_info.barcode === this.state.scannerInput);
 
             if (find_item) {
                 find_item.received_quantity = find_item.received_quantity + 1;
@@ -205,7 +207,7 @@ class IncomingReceving extends Component {
                     <input type="text" className="form-control" name="track_id" value={this.state.track_id} aria-describedby="trakIDHelper" placeholder="Track ID:" onChange={this.handleChange} />
                     <small id="trakIDHelper" className="form-text text-muted">Track ID, csomagszám (Ezzel lehet nyomon követni a csomagokat a gls vagy bármelyik futárszolgálatnál) </small>
                     <label>Select WebShop (optional):</label>
-                    <Select options={this.state.webshops_options} onChange={this.onChangeSelect} />
+                    <Select options={this.state.webshops_options} onChange={this.handleSelectWebshopPack} />
                 </div>
                 <button type="button" className="btn btn-primary" onClick={this.handleSreach}>Search</button>
                 <div className="container pt-3">

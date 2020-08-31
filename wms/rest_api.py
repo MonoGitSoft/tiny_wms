@@ -96,6 +96,14 @@ def create_receiving_package(request):
 
 @api_view(['GET'])
 @permission_classes((permissions.AllowAny,)) #TODO set correct perrmisions
+def get_receiving_packages(request):
+    queryset = ReceivingPackage.objects.all()
+    rec_pkg = ReceivingPackageSerializer(queryset, many=True)
+    return Response(rec_pkg.data)
+
+
+@api_view(['GET'])
+@permission_classes((permissions.AllowAny,)) #TODO set correct perrmisions
 def get_receiving_package(request, track_id):
     """
         A bevételezendő csimagot adja vissza track_id alapjan

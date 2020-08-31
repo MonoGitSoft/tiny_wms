@@ -10,6 +10,7 @@ urlpatterns = [
     path('items/<int:wb_pk>', rest_api.get_webshop_items),
     path('items_details/', rest_api.get_items_details),
     path('inventory/receiving_package/', rest_api.create_receiving_package),
+    path('inventory/receiving_package/all/', rest_api.get_receiving_packages),
     path('inventory/receiving_package/<track_id>', rest_api.get_receiving_package),
     #path('inventory/receiving_items/<int:package_id>', rest_api.get_receiving_items),
 ]

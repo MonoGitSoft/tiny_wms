@@ -118,15 +118,15 @@ class ReceivingPackage(models.Model):
     ]
 
     webshop_id = models.ForeignKey(WebShop, on_delete=models.CASCADE) # webshop from the package will receive
-    track_id = models.CharField(max_length=122, unique=True, editable=False)
+    track_id = models.CharField(max_length=122, unique=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     status = EnumField(choices=RECEIVING_PKG_STATUS, default=SHIPPING)
     comment = models.CharField(max_length=254, default='')
 
 class ReceivingItems(models.Model):
-    product_id = models.OneToOneField(Product, on_delete=models.CASCADE, primary_key=True)
-    quantity = models.PositiveIntegerField(editable=False)
+    product_id = models.ForeignKey(Product, on_delete=models.CASCADE)
+    quantity = models.PositiveIntegerField()
     received_quantity = models.PositiveIntegerField(default=0) # mennyi jott be a raktarba
     package_id = models.ForeignKey(ReceivingPackage, related_name='items', on_delete=models.CASCADE)
 
