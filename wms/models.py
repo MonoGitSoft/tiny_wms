@@ -28,19 +28,9 @@ class WebShop(models.Model):
     def fields():
         return ['id', 'name', 'url', 'email'] # id field comes from models.Model
 
-class RackLocation(models.Model):
-    geo_location = models.CharField(max_length=122) # Pl Kőbánya
-    row = models.IntegerField()
-    column = models.IntegerField()
-    floor = models.IntegerField()
-    section = models.IntegerField()
-    barcode = models.CharField(max_length=122)
-    fullness_percentage = models.PositiveIntegerField(default=0) # 0-100
-    is_putaway = models.BooleanField(default=False) # if it is a putaway box it is true
+    def __str__(self):
+        return self.name
 
-    @staticmethod
-    def fields():
-        return ['geo_location', 'row', 'column', 'quantity', 'floor', 'section', 'barcode', 'fullness_percentage', 'is_putaway']
 
 class Product(models.Model):
 
@@ -70,6 +60,9 @@ class Product(models.Model):
     weight = models.PositiveIntegerField(default=0) # [kg]
     size = EnumField(choices=SIZE_CHOICES, default=SMALL)
 
+    def __str__(self):
+        return self.webshop_id.name + '-' + self.name
+
     @staticmethod
     def fields():
         return ['id', 'name', 'barcode', 'item_number', 'quantity', 'webshop_id', 'description', 'notification_num', 'weight', 'size']
@@ -81,11 +74,11 @@ class Product(models.Model):
         qs_barcode = Product.objects.filter(barcode=self.barcode)
         qs_item_number = Product.objects.filter(item_number=self.item_number)
         qs_name = Product.objects.filter(name=self.name)
-        if qs_barcode.filter(webshop_id=self.webshop_id).exists():
+        if qs_barcode.filter(webshop_id=self.webshop_id).exclude(id=self.id).exists():
             raise ValidationError(detail='Barcode must be unique in one webshop')
-        if qs_item_number.filter(webshop_id=self.webshop_id).exists():
+        if qs_item_number.filter(webshop_id=self.webshop_id).exclude(id=self.id).exists():
             raise ValidationError(detail='Item number must be unique in one webshop')
-        if qs_name.filter(webshop_id=self.webshop_id).exists():
+        if qs_name.filter(webshop_id=self.webshop_id).exclude(id=self.id).exists():
             raise ValidationError(detail='Item Name must be unique in one webshop')
 
     def save(self, *args, **kwargs):
@@ -95,14 +88,52 @@ class Product(models.Model):
         self.validate_unique()
         super(Product, self).save(*args, **kwargs)
 
-class ProductLoction(models.Model):
-    product_id = models.ForeignKey(Product, on_delete=models.CASCADE)
-    rack_id = models.ForeignKey(RackLocation, on_delete=models.CASCADE)
-    product_quantity = models.PositiveIntegerField()
+class RackLocation(models.Model):
+
+    TAKE_IN_RACK = 'TK_RK'
+    RACK = 'RK'
+    PUT_AWAY_RACK = 'PT_RK'
+    PICKING_RACK = 'PK_RK'
+
+    RACK_TYPE = [
+        (TAKE_IN_RACK ,'Take-in rack'),
+        (RACK,'Rack'),
+        (PUT_AWAY_RACK ,'Putaway rack'),
+        (PICKING_RACK ,'Picking rack'),
+    ]
+
+    geo_location = models.CharField(max_length=122) # Pl Kőbánya
+    row = models.IntegerField()
+    column = models.IntegerField()
+    floor = models.IntegerField()
+    section = models.IntegerField()
+    barcode = models.CharField(max_length=122, unique=True)
+    fullness_percentage = models.PositiveIntegerField(default=0) # 0-100
+    rack_type = EnumField(choices=RACK_TYPE, default=RACK)
+    products = models.ManyToManyField(Product, through='ProductLoction')
+
+    def __str__(self):
+        return "row-" + str(self.row) + "_column-" + str(self.column) + "_floor-" + str(self.floor) + "_section-" + str(self.section) + "_type-" + self.rack_type
+
+
+    class Meta:
+        unique_together = [['row', 'column', 'floor', 'section']]
 
     @staticmethod
     def fields():
-        return ['product_id', 'rack_id', 'product_quantity']
+        return ['geo_location', 'row', 'column', 'quantity', 'floor', 'section', 'barcode', 'fullness_percentage', 'rack_type']
+
+class ProductLoction(models.Model):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    rack = models.ForeignKey(RackLocation, on_delete=models.CASCADE)
+    product_quantity = models.PositiveIntegerField()
+
+    class Meta:
+        unique_together = [['product', 'rack']]
+
+    @staticmethod
+    def fields():
+        return ['product', 'rack', 'product_quantity']
 
 
 class ReceivingPackage(models.Model):

@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import axios from 'axios'
 import Select, { components } from 'react-select'
 import { Message, Form, Button } from "semantic-ui-react";
+import { Fade } from 'react-bootstrap';
 
 
 class IncomingReceving extends Component {
@@ -14,9 +15,10 @@ class IncomingReceving extends Component {
             receiving_package: null,
             receiving_packages: null,
             receiving_items: null,
-            select_pack:null,
+            select_pack: null,
             fromError: null,
             scannerInput: null,
+            take_in_box_barcode: '',
         }; //'name', 'barcode', 'item_number', 'quantity', 'webshop_id', 'description', 'notification_num'
         this.baseState = this.state;
         this.handleSreach = this.handleSreach.bind(this);
@@ -33,7 +35,7 @@ class IncomingReceving extends Component {
     componentDidMount() {
         axios.get(`http://127.0.0.1:8000/inventory/receiving_package/all/`)
             .then(res => {
-                this.setState({ receiving_packages: res.data});
+                this.setState({ receiving_packages: res.data });
                 const options = [];
                 res.data.forEach(element => options.push({ value: element.id, label: element.webshop_name + ' ' + element.created_at }));
                 this.setState({ webshops_options: options });
@@ -42,8 +44,33 @@ class IncomingReceving extends Component {
 
     resetForm = () => {
         this.setState(this.baseState)
+        this.forceUpdate()
     }
 
+
+    handleIncommingPackage = () => {
+        console.log('-------------------------')
+
+        const incoming_package_data = {
+            receiving_package_id: this.state.select_pack,
+            items: this.state.receiving_items,
+            webshop_id: 0, //csunyaaa (updatenél ezeket nem kene küldeni)
+            track_id: 0, //csunyaaa (updatenél ezeket nem kene küldeni)
+            take_in_box_barcode: this.state.take_in_box_barcode,
+            is_take_in_finished: true,
+        }
+
+        axios.post('http://127.0.0.1:8000/inventory/incoming_package/', incoming_package_data)
+            .then(res => {
+                this.setState({ take_an_successful: true })
+            },
+                err => {
+                    this.setState({ take_an_successful: false })
+                    this.setState({ fromError: [err.response.data] });
+                }
+            )
+        console.log(incoming_package_data)
+    }
 
     async handleSreach() {
 
@@ -106,23 +133,26 @@ class IncomingReceving extends Component {
             console.log(msg);
             return (
                 <>
-                    {!this.state.fromError ? (
-                        <Message
-                            positive
-                            header="Add item was successful"
-                        />
-                    ) : (
-                            <Message
-                                negative
-                                header="Add item was unsuccessful"
-                                list={msg}
-                            />
-                        )}
-                    <button onClick={this.resetForm} className="btn btn-primary">Try new search</button>
-                </>);
+                    <Message
+                        negative
+                        header="Take-in was unsuccessful"
+                        list={msg}
+                    />
+                    <button onClick={this.resetForm} className="btn btn-primary">New Take-in</button>
+                </>
+            );
         }
-        else {
-            return (<></>);
+        else if (this.state.take_an_successful) {
+            return (
+                <>
+                    <Message
+                        positive
+                        header="Take-in was successful"
+                        list={msg}
+                    />
+                    <button onClick={() => window.location.reload(false)} className="btn btn-primary">New Take-in</button>
+                </>
+            );
         }
     }
 
@@ -132,11 +162,11 @@ class IncomingReceving extends Component {
             return (<></>)
         }
 
-        
-        
+
+
         return this.state.receiving_items.map((item, index) => {
             const { quantity, received_quantity } = item;
-            const {id, name, barcode} = item.product_info;
+            const { id, name, barcode } = item.product_info;
             return (
                 <tr key={id}>
                     <td>{name}</td>
@@ -159,9 +189,10 @@ class IncomingReceving extends Component {
 
     handleSelectWebshopPack = (event) => {
         console.log(this.state.webshops_options)
-        this.setState({receiving_items: this.state.receiving_packages.find(e => e.id === event.value).items })
+        this.setState({ receiving_items: this.state.receiving_packages.find(e => e.id === event.value).items })
         console.log(this.state.receiving_packages)
         console.log(this.state.receiving_packages.find(e => e.id = event.value))
+        this.setState({ select_pack: event.value })
     }
 
     handleScannerInput = (event) => {
@@ -186,7 +217,12 @@ class IncomingReceving extends Component {
                 console.log("heureke")
             }
             else {
-                console.log("Unknown item")
+                this.props.alert.show(
+                    <div className="container" style={{ color: 'red' }}>
+                        <p> This item is not part of the registered receiving package!!!  </p>
+                        <p> Do not put it to the take in box!!!  </p>
+                        <p> Put it back to the package and after finish the take-in process write a email to the webshop!!!</p>
+                    </div>)
             }
 
 
@@ -194,6 +230,31 @@ class IncomingReceving extends Component {
             document.getElementById('scannerInput').value = ''
             this.forceUpdate();
         }
+    }
+
+    handleNewTakeInBox = () => {
+        console.log('-------------------------')
+
+        const incoming_package_data = {
+            receiving_package_id: this.state.select_pack,
+            items: this.state.receiving_items,
+            webshop_id: 0, //csunyaaa (updatenél ezeket nem kene küldeni)
+            track_id: 0, //csunyaaa (updatenél ezeket nem kene küldeni)
+            take_in_box_barcode: this.state.take_in_box_barcode,
+            is_take_in_finished: false,
+        }
+        console.log(incoming_package_data)
+        axios.post('http://127.0.0.1:8000/inventory/incoming_package/', incoming_package_data)
+            .then(res => {
+                this.setState({ take_in_box_barcode: '' });
+                this.setState({ fromError: null });
+            },
+                err => {
+                    this.setState({ take_an_successful: false })
+                    this.setState({ fromError: [err.response.data] });
+                }
+            )
+        console.log(incoming_package_data)
     }
 
     render() {
@@ -225,19 +286,34 @@ class IncomingReceving extends Component {
                             {this.renderTable()}
                         </tbody>
                     </table>
-                    <form>
-                        <h2>Scanner input:</h2>
-                        <input onKeyDown={this.handleScannerOnKey} type="text" id="scannerInput" className="form-control" name="scannerInput" value={this.state.scannerInput} onChange={this.handleChange} />
-                    </form>
+                    <div className="container pt-10">
+                        <div className="row">
+                            <div className="col-sm">
+                                <h2>Items Scanner input:</h2>
+                                <input onKeyDown={this.handleScannerOnKey} type="text" id="scannerInput" className="form-control" name="scannerInput" value={this.state.scannerInput} onChange={this.handleChange} />
+                            </div>
+                            <div className="col-sm">
+                                <h2>Take in box scanner input:</h2>
+                                <input type="text" id="take_in_scannerInput" className="form-control" name="take_in_box_barcode" value={this.state.take_in_box_barcode} onChange={this.handleChange} />
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 <div className="container pt-3">
-                    <button type="button" className="btn btn-primary" onClick={() => {
-                        this.props.alert.show(
-                            <div className="container">
-                                <p> Are you sure to take-in the items???  </p>
-                                <button type="button" className="btn btn-primary" onClick={this.handleSreach}>Yes, start taking-in the items</button>
-                            </div>)
-                    }} >Take In</button>
+                    <div className="row">
+                        <div className="col-sm">
+                            <button type="button" className="btn btn-primary" onClick={() => {
+                                this.props.alert.show(
+                                    <div className="container">
+                                        <p> Are you sure to take-in the items???  </p>
+                                        <button type="button" className="btn btn-primary" onClick={this.handleIncommingPackage}>Yes, start taking-in the items</button>
+                                    </div>)
+                            }} >Take In</button>
+                        </div>
+                        <div className="col-sm">
+                            <button type="button" className="btn btn-primary" onClick={this.handleNewTakeInBox}>New take in box</button>
+                        </div>
+                    </div>
                 </div>
                 {infoMsg}
             </div>

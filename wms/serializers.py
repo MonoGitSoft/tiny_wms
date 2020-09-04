@@ -20,6 +20,26 @@ class ReceivingItemRequestSerializer(serializers.ModelSerializer):
         fields = ['product_id', 'quantity']
 
 
+class ReceivingPackageUpdateSerializer(serializers.ModelSerializer):
+    items = ReceivingItemsSerializer(many=True)
+    class Meta:
+        model = ReceivingPackage
+        fields = ['items']
+
+    def update(self, instance, validated_data):
+        receiving_items_data = validated_data.pop('items')
+        rec_items = (instance.items).all()
+        rec_items = list(rec_items)
+        if len(receiving_items_data) == 0:
+            raise ValidationError(detail=['Items is missing'])
+        if instance.status is ReceivingPackage.TAKEN_OVER:
+            raise ValidationError(detail=['Package already takan-in. for modification ask admin help'])
+        for data in receiving_items_data:
+            item = rec_items.pop(0)
+            item.received_quantity = data.get('received_quantity', item.received_quantity)
+            item.save()
+        return instance
+
 class ReceivingPackageSerializer(serializers.ModelSerializer):
     items = ReceivingItemsSerializer(many=True)
     webshop_name = serializers.CharField(source='webshop_id.name', required=False)
@@ -37,6 +57,7 @@ class ReceivingPackageSerializer(serializers.ModelSerializer):
         for data in receiving_items_data:
             ReceivingItems.objects.create(package_id=receiving_package, **data)
         return receiving_package
+
 
 def reduce_multiplicity(receiving_items):
     reduced_dict = dict()
@@ -73,3 +94,20 @@ class ProductLocationSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProductLoction
         fields = ProductLoction.fields()
+
+class InCommingPackageSerializer(serializers.Serializer):
+    take_in_box_barcode = serializers.CharField(max_length=20)
+    is_take_in_finished = serializers.BooleanField()
+
+class TakeInProductSerializer(serializers.ModelSerializer):
+    webshop_name = serializers.CharField(source='webshop_id.name')
+    class Meta:
+        model = Product
+        fields = ['id', 'name', 'barcode', 'webshop_id', 'webshop_name']
+
+
+class TakeInRackSerializer(serializers.ModelSerializer):
+    products = TakeInProductSerializer(many=True)
+    class Meta:
+        model = RackLocation
+        fields = ['id', 'barcode', 'products']
