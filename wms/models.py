@@ -110,7 +110,7 @@ class RackLocation(models.Model):
     barcode = models.CharField(max_length=122, unique=True)
     fullness_percentage = models.PositiveIntegerField(default=0) # 0-100
     rack_type = EnumField(choices=RACK_TYPE, default=RACK)
-    products = models.ManyToManyField(Product, through='ProductLoction')
+    products = models.ManyToManyField(Product, through='ProductLocation')
 
     def __str__(self):
         return "row-" + str(self.row) + "_column-" + str(self.column) + "_floor-" + str(self.floor) + "_section-" + str(self.section) + "_type-" + self.rack_type
@@ -123,7 +123,7 @@ class RackLocation(models.Model):
     def fields():
         return ['geo_location', 'row', 'column', 'quantity', 'floor', 'section', 'barcode', 'fullness_percentage', 'rack_type']
 
-class ProductLoction(models.Model):
+class ProductLocation(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     rack = models.ForeignKey(RackLocation, on_delete=models.CASCADE)
     product_quantity = models.PositiveIntegerField()

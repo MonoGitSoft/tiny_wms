@@ -92,8 +92,8 @@ class RackSerializer(serializers.ModelSerializer):
 
 class ProductLocationSerializer(serializers.ModelSerializer):
     class Meta:
-        model = ProductLoction
-        fields = ProductLoction.fields()
+        model = ProductLocation
+        fields = ProductLocation.fields()
 
 class InCommingPackageSerializer(serializers.Serializer):
     take_in_box_barcode = serializers.CharField(max_length=20)

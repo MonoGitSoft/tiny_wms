@@ -152,7 +152,7 @@ def set_incoming_package(request):
             print("ok")
             take_in_box.fullness_percentage = 100
             take_in_box.save()
-            loc = ProductLoction(product=rec_item.product_id, rack=take_in_box, product_quantity=rec_item.received_quantity)
+            loc = ProductLocation(product=rec_item.product_id, rack=take_in_box, product_quantity=rec_item.received_quantity)
             product = Product.objects.get(id=rec_item.product_id.id)
             product.quantity = product.quantity + rec_item.received_quantity
             product.save()
